@@ -61,33 +61,20 @@
             <h2>Setup Instructions</h2>
             <p>
                 <ul>
-                    <li>https://github.com/a-hacker/PyCon2018-Luigi</li><br>
-                    <li>https://github.com/ianze/PyCon2018-Airflow</li>
+                    <li>https://github.com/a-hacker/BostonPython-Airflow</li><br>
                 </ul>
             </p>
         </section>
         <section>
-            <div id="left">
-                <b>Ian Zelikman</b>
-                <ul>
-                    <li>Python dev for 6+ years</li>
-                    <li>Backend web services</li>
-                    <li>ETL Process</li>
-                    <p>
-                        @izcoder<br/>
-                        ian.zelikman@gmail
-                    </p>
-                </ul>
-            </div>
-            <div id="right">
-                <b>Austin Hacker</b>
-                <ul>
-                    <li>Python programmer for 4+ years</li>
-                    <li>Workflow Automation</li>
-                    <br/>
-                </ul>
+            <div id="center">
+                <h2>Austin Hacker</h2>
                 <p>
-                    explosivepyrounicorns@gmail
+                    <ul>
+                        <li>Python programmer for 5+ years</li>
+                        <li>Data Engineer at DataRobot</li>
+                        <br/>
+                    </ul>
+                    explosivepyrounicorns@gmail.com
                 </p>
             </div>
         </section>
@@ -113,298 +100,6 @@ We will then have a series of lessons where in each lesson we will cover some th
             </aside>
         </section>
         <section>
-            <h2>Luigi</h2>
-            <ul>
-                <li>Designed by Spotify</li>
-                <li>Automate long-running processes</li>
-                <li>Support for the Hadoop ecosystem</li>
-            </ul>
-            <aside class="notes">
-Luigi started as an internal tool developed by Spotify to manage the plumbing associated with long-running hadoop jobs and other batch processing.<br>
-Open sourced in 2012.<br>
-Like other workflow engines at the time, Luigi provides built-in support for Hadoop jobs but is designed to be more general use<br>
-            </aside>
-        </section>
-        <section>
-            <h2>Nitty Gritty</h2>
-            <ul>
-                <li>Object-Oriented Structure</li>
-                <li>File-based</li>
-                <li>Scheduler and Workers</li>
-                <li>Visualiser Page</li>
-            </ul>
-            <aside class="notes">
-Luigi uses files to trigger tasks and output data processing<br>
-While a task is running, a simple web UI is available to check on task progress<br>
-It is possible to run luigi pipelines with the local scheduler but the central scheduler is preffered.<br>
-Central scheduler is a single-threaded process that spawns workers when needed.<br>
-Tasks are specified using classes.<br>
-            </aside>
-        </section>
-        <section>
-            <h2>Lesson 1</h2>
-            <p>
-                <b>https://github.com/a-hacker/PyCon2018-Luigi</b>
-                <br><br>
-                Run the hello_world dag and check the central scheduler<br><br>
-                <b>Note</b>: Run your dag with docker exec pycon2018luigi_scheduler_1 python3 dags/hello_world.py HelloWorldTask
-            </p>
-        </section>
-        <section>
-            <h2>Task Structure</h2>
-            <pre><code data-trim data-noescape>
-                class TaskClass(luigi.Task):
-                    def requires(self):
-                        #I specify dependencies for this task
-                        return AnotherTaskClass()
-                    def output(self):
-                        #I specify an output file for task data
-                        return luigi.LocalTarget("target_file")
-                    def run(self):
-                        #I run code!
-                        pass
-            </code></pre>
-        </section>
-        <section>
-            <h2>Running a Task</h2>
-            <pre><code data-trim data-noescape>
-                class TaskClass(luigi.Task):
-                    ...
-                    def run(self):
-                        data = ""
-                        with self.input().open('r') as foo:
-                            data = foo.read()
-                        processed_data = do_something(data)
-                        with self.output().open('w') as bar:
-                            bar.write(processed_data)
-            </code></pre>
-        </section>
-        <section>
-            <h2>External Tasks</h2>
-            <pre><code data-trim data-noescape>
-                class ExternalTaskClass(luigi.ExternalTask):
-                    def output(self):
-                        return luigi.LocalTarget("/my/external/file.txt")
-            </code></pre>
-        </section>
-        <section>
-            <h2>Putting it Together</h2>
-            <pre><code data-trim data-noescape>
-                class ExternalTaskClass(luigi.ExternalTask):
-                    def output(self):
-                        return luigi.LocalTarget("external_file.txt")
-
-                class TaskClass(luigi.Task):
-                    def requires(self):
-                        return ExternalTaskClass()
-                    ...
-            </code></pre>
-        </section>
-        <section>
-            <h2>Lesson 2</h2>
-            <p>
-                Write your own dag to perform XKCD substitions on the input file.<br><br>
-                <b>Note</b>: Run your dag with docker exec pycon2018luigi_scheduler_1 python3 dags/part1.py &lt;YourTaskName&gt;
-            </p>
-        </section>
-        <section>
-            <h2>Parameterize Everything!</h2>
-            <pre><code data-trim data-noescape>
-                class TaskClass(luigi.Task):
-                    foo = luigi.Parameter(default="bar")
-
-                    def output(self):
-                        return luigi.LocalTarget("{}.txt"
-                            .format(self.foo))
-                    ...
-            </code></pre>
-        </section>
-        <section>
-            <h2>Available Param Types</h2>
-            <ul>
-                <li>BooleanParam</li>
-                <li>IntParam</li>
-                <li>DictParam</li>
-                <li>DateParam</li>
-                <li>ChoiceParam</li>
-                <li>...and many more</li>
-            </ul>
-        </section>
-        <section>
-            <h2>Passing params</h2>
-            <pre><code data-trim data-noescape>
-                class TaskClass(luigi.Task):
-                    foo = luigi.Parameter(default="bar")
-                ...
-                class DownStreamTask(luigi.Task):
-                    def requires(self):
-                        return TaskClass(foo="baz")
-            </code></pre>
-            <pre><code data-trim data-noescape>
-                python3 dagfile.py TaskClass --foo baz
-            </code></pre>
-        </section>
-        <section>
-            <h2>Lesson 3</h2>
-            <p>
-                <b>Add parameters to your DAG</b><br><br>
-                Support different substitutions to be used
-            </p>
-        </section>
-        <section>
-            <h2>Grow your dag</h2>
-            <pre><code data-trim data-noescape>
-                class DownStreamTask(luigi.Task):
-                    def requires(self):
-                        return [TaskClass(foo="bar"),
-                                TaskClass(foo="baz")]
-                    ...
-            </code></pre>
-        </section>
-        <section>
-            <h2>Arbitrary number of dependencies</h2>
-            <pre><code data-trim data-noescape>
-                class DownStreamTask(luigi.Task):
-                    dependencies = luigi.IntParameter(default=4)
-                    def requires(self):
-                        return [TaskClass(x)
-                            for x
-                            in range(0, self.dependencies)]
-                    ...
-            </code></pre>
-        </section>
-        <section>
-            <h2>All you need is __iter__</h2>
-            <pre><code data-trim data-noescape>
-                class DownStreamTask(luigi.Task):
-                    def requires(self):
-                        return {'thing1': TaskClass(1),
-                                'thing2': TaskClass(2)}
-                    ...
-            </code></pre>
-            <pre><code data-trim data-noescape>
-                class DownStreamTask(luigi.Task):
-                    def requires(self):
-                        return FirstTask(), SecondTask()
-                    ...
-            </code></pre>
-        </section>
-        <section>
-            <h2>Using multiple dependencies</h2>
-            <pre><code data-trim data-noescape>
-                class DownStreamTask(luigi.Task):
-                    def requires(self):
-                        return [TaskClass(foo="bar"),
-                                TaskClass(foo="baz")]
-                    def run(self):
-                        for dep in self.input():
-                            with dep.open():
-                                ...
-            </code></pre>
-        </section>
-        <section>
-            <h2>Read before you write</h2>
-            <ul>
-                <li>Tasks execute when dependency output file exists</li>
-                <li>hadoop.JobTask</li>
-            </ul>
-        </section>
-        <section>
-            <h2>Lesson 4</h2>
-            <p>
-                <b>Read Multiple Files</b><br><br>
-                Create tasks for each input file and create a unified output of substitutions
-                Try to dynamically create external tasks
-            </p>
-        </section>
-        <section>
-            <h2>Error!</h2>
-        </section>
-        <section>
-            <h2>Event Callbacks</h2>
-            <pre><code data-trim data-noescape>
-                @luigi.Task.event_handler(luigi.Event.SUCCESS)
-                def celebrate_success(task):
-                    #do a thing
-                    pass
-            </code></pre>
-        </section>
-        <section>
-            <h2>So close</h2>
-            <pre><code data-trim data-noescape>
-                @luigi.Task.event_handler(luigi.Event.FAILURE)
-                def mourn_failure(task, exception):
-                    #do a thing
-                    pass
-            </code></pre>
-        </section>
-        <section>
-            <h2>Narrow your scope</h2>
-            <pre><code data-trim data-noescape>
-                @TaskClass.event_handler(luigi.Event.FAILURE)
-                def mourn_failure(task, exception):
-                    #do a thing
-                    pass
-            </code></pre>
-        </section>
-        <section>
-            <h2>Maybe just try again?</h2>
-            <pre><code data-trim data-noescape>
-                class TaskClass(luigi.Task):
-                    retry_count = 5
-                    ...
-            </code></pre>
-        </section>
-        <section>
-            <h2>Lesson 5</h2>
-            <p>
-                <b>Recover from a failure</b><br><br>
-                Add an event handler when you can't read a file
-            </p>
-        </section>
-        <section>
-            <h2>Unit tests</h2>
-            <ul>
-                <li>Split out actual logic</li>
-                <li>Mocking Luigi is....possible</li>
-            </ul>
-        </section>
-        <section>
-            <h2>MockTarget</h2>
-            <pre><code data-trim data-noescape>
-                from luigi.mock import MockTarget
-                ...
-                class InputMock(YourInputTaskClass):
-                    def output(self):
-                        return MockTarget('dest.txt')
-                    ...
-            </code></pre>
-        </section>
-        <section>
-            <h2>Patch Downstream Tasks</h2>
-            <pre><code data-trim data-noescape>
-                @mock.patch('dags.example.DownstreamTask.requires')
-                def test_example(dt_req):
-                    dt_req.return_value = InputMock()
-            </code></pre>
-        </section>
-        <section>
-            <h2>Patch Downstream Tasks</h2>
-            <pre><code data-trim data-noescape>
-                @mock.patch('dags.example.DownstreamTask.output')
-                def test_example(dt_out):
-                    dt_out.return_value = luigi.LocalTarget(is_tmp=True)
-            </code></pre>
-        </section>
-        <section>
-            <h2>Bonus Lesson/Break</h2>
-            <p>
-                <b>Write some tests</b><br><br>
-                Test the code you just wrote.
-                Use the the test/hello_world_test.py as reference
-            </p>
-        </section>
-        <section>
             <h4>Airflow</h4>
             <ul>
                 <li>Originally by Airbnb</li>
@@ -426,7 +121,7 @@ This is not a data streaming solution (Spark streaming, storm), similar solution
                 <li>UI</li>
                 <li>MetaData Database(Postgres)</li>
                 <li>Scheduler(Executor)</li>
-                <li>Workers</li>
+                <li>Workers*</li>
             </ul>
             <aside class="notes">
 Airflow UI is a Flask application that is used to display, monitor and control our DAG execution.<br>
@@ -450,11 +145,11 @@ Show the flower UI - but won't need it in this tutorial.
             </aside>
         </Section>
         <section>
-            <h4>Lesson 1 - Running Airflow</h4>
+            <h4>Exercise 0 - Running Airflow</h4>
             <p>
-                <b>https://github.com/ianze/PyCon2018-Airflow</b>
+                <b>https://github.com/a-hacker/BostonPython-Airflow</b>
                 <br><br>
-                Verify all components of Airflow are working and you can run the sample DAG.<br><br>
+                Verify all components of Airflow are working and run the run_me_first DAG.<br><br>
                 Explore the UI and see information about the DAG run.<br><br>
                 <b>Bonus</b>: Update DAG code so that there are errors during a task run. See details of failed DAG run.
             </p>
@@ -536,15 +231,15 @@ Other operators: Hive, Http (calls an endpoint), MySQL (runs a query), SlackPost
         </section>
     </section>
         <section>
-            <h4>Lesson 2 - First DAG</h4>
+            <h4>Exercise 1 - First DAG</h4>
             <p>
                 Construct a DAG with multiple tasks<br>
                 Find the most common baby name in the provided dataset<br><br>
 
-                <b>Instructions</b><br><br>
-                Baby names in the US(by year): <b>https://www.ssa.gov/oact/babynames/names.zip</b><br><br>
-                Dag must be placed in <b>dags</b> directory<br>
-                Place temporary files in: <b>/tmp/work</b>
+                <b>Instructions:</b><br>
+                Baby names in the US(by year): <b>https://www.ssa.gov/oact/babynames/names.zip</b> (in data/ dir)<br><br>
+                Dag must be placed in <b>dags</b> directory (exercise_1.py)<br><br>
+                Solution in <b>solutions/solution1.py</b>
             </p>
         </section>
         <section>
@@ -576,46 +271,57 @@ A pool will limit how many tasks can run in parallel. You can add a pool using t
 </aside>
         </section>
         <section>
-            <h4>Jinja2</h4>
-            <pre><code data-trim data-noescape>
-                templated_command = """
-                {% for i in range(5) %}
-                    echo "{{ ds }}"
-                    echo "{{ params.my_param }}"
-                {% endfor %}
-                """
-            </code></pre>
-            <pre><code data-trim data-noescape>
-                BashOperator(
-                    task_id='templated',
-                    bash_command=templated_command,
-                    params={'my_param': 'Parameter I passed in'},
-                    dag=dag)
-            </code></pre>
-            <aside class="notes">
-                Jinja2 is probably the most popular template engine in Python. It is built into Airflow.<br>
-                Another great feature of Airflow is it has templating using Jinja2. It supports several pre-defined variables such
-                ds which you can see here. this is today time stamp. Other variables give information regarding the DAG, Task and other run information.<br>
-                As you can see in parameters you can pass your own parameters.<br>
-                Many of the Operators(Bash) support passing a template argument that Airflow will render for you. This comes in handy for such commands with bash or SQL<br>
-            </aside>
-        </section>
-        <section>
-            <h4>Lesson 3 - Parallelism in DAGs </h4>
+            <h4>Exercise 2 - Parallelism in DAGs </h4>
             <p>
-                Build a DAG that calculates most common names in 5 states<br>
+                Build a DAG that calculates most common names in provided date ranges.<br>
                 Make the calculation as parallel as possible<br><br>
 
-                <b>Bonus:</b>Add the use of pools in order to restrict running up 2 tasks at a time<br><br>
-
-                <b>Instructions</b><br>
-                US baby names by state: https://www.ssa.gov/oact/babynames/state/namesbystate.zip
+                <b>Instructions:</b><br>
+                Use <b>exercise_2.py</b> in dags directory.<br><br>
+                Generate tasks in loop. Use <b>run_me_first.py</b> as an example.
             </p>
         <aside class="notes">
             Solve the exercise without the pools first.<br>
             Don't forget to add the pool before running the exercise with pools<br>
             example_python_operator.py
         </aside>
+        </section>
+        <section>
+            <h4>Xcom Push</h4>
+            <pre><code data-trim data-noescape>
+                def pass_data(ds, **kwargs):
+                    kwargs['ti'].xcom_push(
+                        key='value from pusher', 
+                        value="my val")
+            </code></pre>
+            <pre><code data-trim data-noescape>
+                def pass_data_from_return(ds, **kwargs):
+                    return "my val"
+            </code></pre>
+        </section>
+        <section>
+            <h4>Xcom Pull</h4>
+            <pre><code data-trim data-noescape>
+                def pull_data(ds, **kwargs):
+                    ti = kwargs['ti']
+                    pulled_value_1 = ti.xcom_pull(
+                        key="value_from_pusher", 
+                        task_ids="pass_data")
+                    pulled_value_2 = ti.xcom_pull(
+                        key=None, 
+                        task_ids="pass_data_from_return")
+            </code></pre>
+        </section>
+        <section>
+            <h4>Exercise 3 - Data Passing</h4>
+            <p>
+                <b>Update your previous DAG:</b><br>
+                Use xcom to get the most common names in one task<br><br>
+
+                <b>Instructions:</b><br>
+                Update current tasks to set <b>provide_context=True</b> when using xcom.<br>
+                Create a new function and task to use <b>xcom.pull</b> after all other tasks have run.
+            </p>
         </section>
         <section>
             <h4>Error Retries</h4>
@@ -663,17 +369,6 @@ A pool will limit how many tasks can run in parallel. You can add a pool using t
                 You will need a way to get notifications of these failures. The email notifications are built in<br>
                 As you can see you can put your own completely custom logic to have some notifications of these errors.
             </aside>
-        </section>
-        <section>
-            <h4>Lesson 4 - Errors</h4>
-            <p>
-                <b>Update your previous DAG:</b><br><br>
-                Add random file read errors so some tasks fail<br>
-                Retry the task until it succeeds<br><br>
-
-                <b>Instructions:</b><br>
-                You can use <b>pycon_utils.RandomFailOpen</b> as the regular python <b>open</b> to simulate random errors
-            </p>
         </section>
         <section>
             <h4>CLI</h4>
@@ -742,22 +437,6 @@ You have the ability to create good unit tests around them.
 </aside>
         </section>
         <section>
-            <h4>Lesson 5 - Tests</h4>
-            <p>
-                Update the task that finds common names to use a custom operator<br>
-                Write unit tests for the operator<br><br>
-
-                <b>Instructions:</b><br>
-                Run tests in the worker container:<br> <b>docker exec -it pycon2018airflow_worker_1 sh</b><br><br>
-                <b>nose</b> and <b>pytests</b> are installed as part of the environment on the worker<br><br>
-                Run tests in the directory: <b>/usr/local/airflow/dags</b><br>
-            </p>
-<aside class="notes">
-    custom_operator.py<br>
-    test_custom_operator.py<br>
-</aside>
-        </section>
-        <section>
             <h4>DAG Deployment</h4>
             <ul>
                 <li>Synchronize across Components</li>
@@ -800,25 +479,6 @@ You can put you custom operators in the same path as the DAGs or in plugins dire
                     A hooks is how Airflow interacts with external resources and you can define your own<br>
                     Macros are the variables we saw you can use in templates we saw<br>
                     Defining your own views gives you the ability to extend the Airflow UI and it is just a Flask view<br>
-                </aside>
-            </section>
-            <section>
-                <h4>Xcom</h4>
-                <pre><code data-trim data-noescape>
-                    # inside a PythonOperator called 'pushing_task'
-                    def push_function():
-                        return value
-
-                    # inside another PythonOperator where provide_context=True
-                    def pull_function(**context):
-                        value = context['task_instance']
-                            .xcom_pull(task_ids='pushing_task')
-                </code></pre>
-                <aside class="notes">
-                    This is how you pass small pieces of data from one task to another<br>
-                    These should be variable you use in your code and for example files or DB tables<br>
-                    In the example you can see the returned value from a task is pushed by default but you can push<br>
-                    more values explicitly.
                 </aside>
             </section>
             <section>
