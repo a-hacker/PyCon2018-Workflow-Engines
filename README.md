@@ -1,4 +1,4 @@
-Slides for tutorial presented at Pycon2018 [Workflow Engines Up and Running](https://us.pycon.org/2018/schedule/presentation/58/)
+Slides for tutorial presented at PyData Meetup [Airflow Tutorial](https://www.meetup.com/PyData-Boston-Cambridge/events/266889653/)
 
 Written using [reveal.js](https://github.com/hakimel/reveal.js/)
 
